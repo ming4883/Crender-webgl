@@ -1,0 +1,6 @@
+This is the Web-GL split from Crender.
+
+To try the examples:
+- run hfs.exe (an Win32 lightweight http server)
+- add the "examples" folder as "Real folder" to HFS
+- click the "Open in browser" button in HFS
