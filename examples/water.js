@@ -153,11 +153,6 @@ function Water_draw(tex, refls) {
 	gl.activeTexture(gl.TEXTURE0+1);
 	gl.bindTexture(gl.TEXTURE_2D, tex);
 	
-	// u_refls
-	gl.uniform1i(p.u_refls, 2);
-	gl.activeTexture(gl.TEXTURE0+2);
-	gl.bindTexture(gl.TEXTURE_2D, refls);
-	
 	Water_squad.drawBegin(p);
 	Water_squad.draw();
 	Water_squad.drawEnd();
@@ -206,7 +201,6 @@ function Water(segments) {
 		var p = crCreateProgramDOM(["water-process-vs", "water-draw-fs"]);
 		p.u_buffer = gl.getUniformLocation(p, "u_buffer");
 		p.u_tex = gl.getUniformLocation(p, "u_tex");
-		p.u_refls = gl.getUniformLocation(p, "u_refls");
 		this.prog.draw = p;
 	}
 	

@@ -110,24 +110,24 @@ precision highp float;
 varying vec2 v_texcrd;
 uniform sampler2D u_buffer;
 uniform sampler2D u_tex;
-uniform sampler2D u_refls;
 
 void main(void) {
-	vec4 curr = texture2D(u_buffer, v_texcrd);
-	vec3 norm = normalize(vec3(curr.z, sqrt(1.0 - dot(curr.zw, curr.zw)), curr.w));
+	vec4 water = texture2D(u_buffer, v_texcrd);
+	vec3 norm = normalize(vec3(water.z, sqrt(1.0 - dot(water.zw, water.zw)), water.w));
 	
-	float ndoth = max(0.0, dot(norm, vec3(0.0, 1.0, 0.0)));
-	vec2 offset = norm.xz * ndoth / 32.0;
+	vec2 offset = norm.xz / 64.0;
 	vec4 tex = texture2D(u_tex, v_texcrd - offset);
-	vec4 refls = texture2D(u_refls, v_texcrd - offset);
+	vec4 refls = tex;
+	vec4 refra = tex * vec4(0.875, 1.0, 0.875, 1.0);
 	
-	ndoth = 1.0 - pow(ndoth, 2.0);
-	ndoth = ndoth * 0.75 + 0.25;
+	float d = dot( norm, normalize(vec3(1.0, 0.0, 1.0)) );
+	d = max(0.0, d);
+	d = d * 0.8 + 0.2;
 	
-	//gl_FragColor = tex + vec4(1.0,1.0,1.0,1.0) * (1.0-ndoth) * 2.0;
-	//gl_FragColor = mix(vec4(1.0,1.0,1.0,1.0) * 1.0, tex, ndoth);
-	//gl_FragColor = mix(tex * 1.5, tex * 1.0, ndoth);
-	gl_FragColor = mix(refls, tex, ndoth);
+	float ndh = max(0.0, dot(norm, normalize(vec3(-1.0, 0.0,-1.0))));
+	ndh = pow(ndh, 2.0) * 4.0;
+	
+	gl_FragColor = mix(refra, refls, d) + ndh;
 	
 }
 </script>
@@ -152,10 +152,10 @@ function init() {
 	water = new Water(256);
 	water.inited = false;
 	
-	//tex = crCreateTexture2DFromUrl("media/me-wedding01.jpg",
-	//tex = crCreateTexture2DFromUrl("media/me-wedding02.jpg",
-	//tex = crCreateTexture2DFromUrl("media/me-prewedding01.jpg",
-	//tex = crCreateTexture2DFromUrl("media/me-prewedding02.jpg",
+	//tex = crCreateTexture2DFromUrl("media/private-wedding01.jpg",
+	//tex = crCreateTexture2DFromUrl("media/private-wedding02.jpg",
+	//tex = crCreateTexture2DFromUrl("media/private-prewedding01.jpg",
+	//tex = crCreateTexture2DFromUrl("media/private-prewedding02.jpg",
 	tex = crCreateTexture2DFromUrl("media/trees.jpg", 
 		{flipY:true, 
 		 mag_filter:gl.LINEAR, min_filter:gl.LINEAR,
