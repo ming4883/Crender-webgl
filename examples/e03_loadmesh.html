@@ -2,6 +2,7 @@
 <script type="text/javascript" src="libs/webgl-utils.js"></script>
 <script type="text/javascript" src="libs/glMatrix-0.9.5.min.js"></script>
 <script type="text/javascript" src="libs/crender.js"></script>
+<script type="text/javascript" src="media/box.mesh.json"></script>
 
 <script id="shader-vs" type="x-shader/x-vertex"> 
 attribute vec3 i_vertex;
@@ -47,10 +48,7 @@ function init() {
 	
 	tex = crCreateTexture2DFromUrl("media/nehe.gif", {flipY:true});
 	
-	crLoadMesh("media/box.mesh.json", function(ret) {
-		mesh = ret;
-		console.debug(mesh);
-	});
+	mesh = crLoadMeshFromData(box_mesh);
 	
 	crLog("init complete");
 }

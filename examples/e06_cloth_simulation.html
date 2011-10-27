@@ -7,7 +7,9 @@ var gliEmbedDebug = true;
 <script type="text/javascript" src="libs/glMatrix-0.9.5.min.js"></script>
 <script type="text/javascript" src="libs/crender.js"></script>
 
+
 <script type="text/javascript" src="cloth.js"></script>
+<script type="text/javascript" src="media/box.mesh.json"></script>
 
 <script id="scene-vs" type="x-shader/x-vertex"> 
 attribute vec3 i_vertex;
@@ -124,7 +126,7 @@ function init() {
 	prog.cloth.u_mMatrix = gl.getUniformLocation(prog.cloth, "u_mMatrix");
 	prog.cloth.u_posBuf = gl.getUniformLocation(prog.cloth, "u_posBuf");
 	
-	crLoadMesh("media/box.mesh.json", function(ret) {mesh = ret;});
+	mesh = crLoadMeshFromData(box_mesh);
 	
 	cloth = new Cloth(4, 4, 31);
 	cloth.inited = false;

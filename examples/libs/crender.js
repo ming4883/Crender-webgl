@@ -168,24 +168,31 @@ function crMeshDrawEnd() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
-function crLoadMesh(url, callback) {
+function crLoadMeshFromUrl(url, callback) {
 
 	if(crLog) crLog("loading mesh '" + url + "'");
 	crLoadJson(url, function(data) {
 	
-		var mesh = {
-			attributes : data.attributes,
-			vbStride : data.vertexStride,
-			indexCount : data.indexBuffer.length,
-			vb : crCreateVertexBuffer(new Float32Array(data.vertexBuffer), gl.STATIC_DRAW), 
-			ib : crCreateIndexBuffer(new Uint16Array(data.indexBuffer), gl.STATIC_DRAW),
-			drawBegin : crMeshDrawBegin,
-			draw : crMeshDraw,
-			drawEnd : crMeshDrawEnd,
-		};
+		var mesh = crLoadMeshFromData(data);
 		if(crLog) crLog("loaded mesh '" + url + "'");
 		callback(mesh);
 	});
+}
+
+function crLoadMeshFromData(data) {
+
+	var mesh = {
+		attributes : data.attributes,
+		vbStride : data.vertexStride,
+		indexCount : data.indexBuffer.length,
+		vb : crCreateVertexBuffer(new Float32Array(data.vertexBuffer), gl.STATIC_DRAW), 
+		ib : crCreateIndexBuffer(new Uint16Array(data.indexBuffer), gl.STATIC_DRAW),
+		drawBegin : crMeshDrawBegin,
+		draw : crMeshDraw,
+		drawEnd : crMeshDrawEnd,
+	};
+	
+	return mesh;
 }
 
 function crCreateScreenQuad() {
@@ -214,18 +221,40 @@ function crCreateScreenQuad() {
 
 function crCreateTexture2DFromUrl(url, options) {
 
+	function isPowerOfTwo(x) {
+		return (x & (x - 1)) == 0;
+	}
+
+	function nextHighestPowerOfTwo(x) {
+		--x;
+		for (var i = 1; i < 32; i <<= 1) {
+			x = x | x >> i;
+		}
+		return x + 1;
+	}
+	
 	options = options || {};
 	
 	var tex = gl.createTexture();
 	tex.ready = false;
-	tex.image = new Image();
 	
-	tex.image.onload = function() {
+	var image = new Image();
+	image.onload = function() {
 	
 		try {
+			if(crLog) crLog("resizing '" + url + "' to next power of 2");
+			
+			var canvas = document.createElement("canvas");
+			canvas.width = nextHighestPowerOfTwo(image.width);
+			canvas.height = nextHighestPowerOfTwo(image.height);
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(image,
+						  0, 0, image.width, image.height,
+						  0, 0, canvas.width, canvas.height);
+						  
 			gl.bindTexture(gl.TEXTURE_2D, tex);
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, options.flipY || true);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex.image);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, options.mag_filter || gl.NEAREST);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, options.min_filter || gl.NEAREST);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, options.wrap_s || gl.REPEAT);
@@ -243,7 +272,7 @@ function crCreateTexture2DFromUrl(url, options) {
 	
 	if(crLog) crLog("loading texture2d '" + url + "'...");
 	
-	tex.image.src = url;
+	image.src = url;
 	return tex;
 }
 

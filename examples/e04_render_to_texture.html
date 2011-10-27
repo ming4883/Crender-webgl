@@ -6,6 +6,7 @@ var gliEmbedDebug = true;
 <script type="text/javascript" src="libs/webgl-utils.js"></script>
 <script type="text/javascript" src="libs/glMatrix-0.9.5.min.js"></script>
 <script type="text/javascript" src="libs/crender.js"></script>
+<script type="text/javascript" src="media/box.mesh.json"></script>
 
 <script id="scene-vs" type="x-shader/x-vertex"> 
 attribute vec3 i_vertex;
@@ -79,7 +80,7 @@ function init() {
 	prog.invert = crCreateProgramDOM(["invert-vs", "invert-fs"]);
 	prog.invert.u_tex = gl.getUniformLocation(prog.invert, "u_tex");
 	
-	crLoadMesh("media/box.mesh.json", function(ret) {mesh = ret;});
+	mesh = crLoadMeshFromData(box_mesh);
 	
 	rttex = crCreateFBOTexture2D(512, 512, {type:gl.FLOAT, mag_filter:gl.LINEAR, min_filter:gl.LINEAR});
 	
